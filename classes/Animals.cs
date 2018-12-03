@@ -5,7 +5,7 @@ namespace youre_bluffing_console
 {
     class Animals
     {
-        public static Dictionary<string, int> cardType = new Dictionary<string, int>(){
+        public static Dictionary<string, int> cardValues = new Dictionary<string, int>(){
             {"Chicken", 10},
             {"Goose", 40},
             {"Cat", 90},
@@ -37,6 +37,16 @@ namespace youre_bluffing_console
                 }
             }
             return deck;
+        }
+
+        private static int GetValueOfQuartets(string[] quartets)
+        {
+            int accumulator = 0;
+            for (int i = 0; i < quartets.Length; i++)
+            {
+                accumulator += cardValues[quartets[i]];
+            }
+            return accumulator * quartets.Length;
         }
 
 

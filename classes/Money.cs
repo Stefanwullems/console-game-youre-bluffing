@@ -28,5 +28,15 @@ namespace youre_bluffing_console
                 return 0;
             }
         }
+
+        public static int GetValueOfMoney(int[] moneyCards)
+        {
+            int accumulator = 0;
+            for (int i = 0; i < moneyCards.Length; i++)
+            {
+                accumulator += moneyCards[i];
+            }
+            return accumulator;
+        }
     }
 }

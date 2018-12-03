@@ -11,7 +11,7 @@ namespace youre_bluffing_console
             Bank bank = new Bank();
             for (int i = 0; i < animals.deck.Length; i++)
             {
-                Console.WriteLine(i.ToString() + " " + animals.deck[i] + " is valued at " + Animals.cardType[animals.deck[i]]);
+                Console.WriteLine(i.ToString() + " " + animals.deck[i] + " is valued at " + Animals.cardValues[animals.deck[i]]);
             }
             Console.WriteLine(bank.GetDonkeyBonus().ToString());
             Console.WriteLine(bank.GetDonkeyBonus().ToString());
