@@ -1,0 +1,11 @@
+/home/stefan/Dev/personal/csharp/youre-bluffing-console/bin/Debug/netcoreapp2.1/youre-bluffing-console.deps.json
+/home/stefan/Dev/personal/csharp/youre-bluffing-console/bin/Debug/netcoreapp2.1/youre-bluffing-console.runtimeconfig.json
+/home/stefan/Dev/personal/csharp/youre-bluffing-console/bin/Debug/netcoreapp2.1/youre-bluffing-console.runtimeconfig.dev.json
+/home/stefan/Dev/personal/csharp/youre-bluffing-console/bin/Debug/netcoreapp2.1/youre-bluffing-console.dll
+/home/stefan/Dev/personal/csharp/youre-bluffing-console/bin/Debug/netcoreapp2.1/youre-bluffing-console.pdb
+/home/stefan/Dev/personal/csharp/youre-bluffing-console/obj/Debug/netcoreapp2.1/youre-bluffing-console.csprojAssemblyReference.cache
+/home/stefan/Dev/personal/csharp/youre-bluffing-console/obj/Debug/netcoreapp2.1/youre-bluffing-console.csproj.CoreCompileInputs.cache
+/home/stefan/Dev/personal/csharp/youre-bluffing-console/obj/Debug/netcoreapp2.1/youre-bluffing-console.AssemblyInfoInputs.cache
+/home/stefan/Dev/personal/csharp/youre-bluffing-console/obj/Debug/netcoreapp2.1/youre-bluffing-console.AssemblyInfo.cs
+/home/stefan/Dev/personal/csharp/youre-bluffing-console/obj/Debug/netcoreapp2.1/youre-bluffing-console.dll
+/home/stefan/Dev/personal/csharp/youre-bluffing-console/obj/Debug/netcoreapp2.1/youre-bluffing-console.pdb
