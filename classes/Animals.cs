@@ -36,10 +36,24 @@ namespace youre_bluffing_console
                     deck[i * 4 + j] = cardTypesSortedByValue[i];
                 }
             }
+            return ShuffleDeck(deck);
+        }
+
+        private static string[] ShuffleDeck(string[] deck)
+        {
+            Random random = new Random();
+
+            for (int i = deck.Length - 1; i > 1; i--)
+            {
+                int j = random.Next(0, i + 1);
+                string key = deck[j];
+                deck[j] = deck[i];
+                deck[i] = key;
+            }
             return deck;
         }
 
-        private static int GetValueOfQuartets(string[] quartets)
+        public static int GetValueOfQuartets(string[] quartets)
         {
             int accumulator = 0;
             for (int i = 0; i < quartets.Length; i++)
@@ -48,6 +62,7 @@ namespace youre_bluffing_console
             }
             return accumulator * quartets.Length;
         }
+
 
 
     }
