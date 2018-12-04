@@ -19,11 +19,11 @@ namespace youre_bluffing_console
         };
 
         private static string[] cardTypesSortedByValue = new string[] { "Chicken", "Goose", "Cat", "Dog", "Sheep", "Goat", "Donkey", "Pig", "Cow", "Horse" };
-        public string[] deck = new string[40];
+        private string[] _deck = new string[40];
 
         public Animals()
         {
-            deck = GenerateDeck();
+            _deck = GenerateDeck();
         }
 
         private static string[] GenerateDeck()
@@ -67,13 +67,18 @@ namespace youre_bluffing_console
         {
             try
             {
-                if (turn > 39) throw new Exception("The deck is empty, move on to the trading section of the game");
+                if (turn >= _deck.Length) throw new Exception("The deck is empty, move on to the trading section of the game");
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace + "\nMessage: " + ex.Message);
             };
-            return deck[turn];
+            return _deck[turn];
+        }
+
+        public string[] GetDeck()
+        {
+            return _deck;
         }
     }
 }
