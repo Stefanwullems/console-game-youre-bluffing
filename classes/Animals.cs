@@ -63,7 +63,17 @@ namespace youre_bluffing_console
             return accumulator * quartets.Length;
         }
 
-
-
+        public string DrawCard(int turn)
+        {
+            try
+            {
+                if (turn > 39) throw new Exception("The deck is empty, move on to the trading section of the game");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace + "\nMessage: " + ex.Message);
+            };
+            return deck[turn];
+        }
     }
 }
