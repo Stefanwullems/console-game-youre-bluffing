@@ -8,15 +8,110 @@ namespace youre_bluffing_console
         private Player[] _players;
         private Bank _bank;
         private Animals _animals;
+        private int turn = 0;
 
         public Game(Bank bank, Animals animals)
         {
             int numberOfPlayers = AskForNumberOfPlayers();
             _players = AddPlayers(numberOfPlayers);
+            _animals = animals;
+            _bank = bank;
             AddInitialHandToPlayers();
         }
 
         public Player[] GetPlayers() { return _players; }
+
+        public void StartGame()
+        {
+            GameLoop();
+        }
+        private void GameLoop()
+        {
+            Player currentPlayer = _players[turn % _players.Length];
+            string card = DealCard(currentPlayer);
+            Player highestBidder = BiddingLoop(card, currentPlayer, out int bid);
+        }
+
+        private string DealCard(Player currentPlayer)
+        {
+            Console.WriteLine("It's " + currentPlayer.GetName() + "'s turn to draw a card");
+            string card = _animals.DrawCard(turn);
+            Console.WriteLine(currentPlayer.GetName() + " drew a " + card + " which is valued at " + Animals.cardValues[card]);
+            return card;
+        }
+
+        private Player BiddingLoop(string card, Player currentPlayer, out int bid)
+        {
+            int biddingTurn;
+            Player[] bidders = RemoveFromBidders(_players, currentPlayer, out biddingTurn);
+            int highestBid = 0;
+            while (true)
+            {
+                Player currentBidder = bidders[biddingTurn];
+                Console.WriteLine("it's " + currentBidder.GetName() + "'s turn to bid");
+
+                int money = currentBidder.GetMoney();
+                Console.WriteLine(currentBidder.GetName() + " has " + money + " in his wallet");
+
+                bid = MakeBid(money, highestBid);
+                if (bid == 0)
+                {
+                    bidders = RemoveFromBidders(bidders, currentBidder, out biddingTurn);
+                    if (bidders.Length == 1)
+                    {
+                        bid = highestBid;
+                        return bidders[0];
+                    }
+                }
+                else highestBid = bid;
+                biddingTurn = (biddingTurn + 1) % bidders.Length;
+            }
+        }
+
+
+
+        private Player[] RemoveFromBidders(Player[] players, Player currentPlayer, out int biddingTurn)
+        {
+            Player[] bidders = new Player[players.Length - 1];
+            Boolean currentPlayerPassed = false;
+            biddingTurn = 0;
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i].GetPlayerId() == currentPlayer.GetPlayerId())
+                {
+                    currentPlayerPassed = true;
+                    biddingTurn = i % bidders.Length;
+                }
+                else
+                {
+                    if (currentPlayerPassed) bidders[i - 1] = players[i];
+                    else bidders[i] = players[i];
+                }
+            }
+            return bidders;
+        }
+
+        private int MakeBid(int money, int highestBid)
+        {
+            int bid = 0;
+            while (true)
+            {
+                Console.WriteLine("Please enter a bid that's divisible by 10. p = pass");
+                string j = Console.ReadLine();
+                if (int.TryParse(j, out bid))
+                {
+                    if (bid <= highestBid) Console.WriteLine("You can only bid higher than the highest bid\nHighest Bid: " + highestBid.ToString());
+                    else if (money >= bid)
+                    {
+                        if (bid % 10 == 0) return bid;
+                        else Console.WriteLine("Please enter a number that's a multiple of 10");
+                    }
+                    else Console.WriteLine("You don't have enough money for that");
+                }
+                else if (j == "p") return 0;
+                else Console.WriteLine("The computer doesn't know what to do with that input. Try something else");
+            }
+        }
 
         private static int AskForNumberOfPlayers()
         {
@@ -44,11 +139,7 @@ namespace youre_bluffing_console
 
         private void AddInitialHandToPlayers()
         {
-            for (int i = 0; i < _players.Length; i++)
-            {
-                int[] initialHand = Bank.InitialHand();
-                for (int j = 0; j < initialHand.Length; j++) _players[i].AddMoney(initialHand[j]);
-            }
+            for (int i = 0; i < _players.Length; i++) _players[i].AddMoney(Bank.InitialHand());
         }
     }
 }
