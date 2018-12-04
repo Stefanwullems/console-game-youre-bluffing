@@ -4,55 +4,77 @@ namespace youre_bluffing_console
 {
     class Player
     {
-        private int[] _money = new int[40];
-        private int moneyCount = 0;
+        private string _name;
         private string[] _animals = new string[40];
         private int animalCount = 0;
         private string[] _quartets = new string[10];
         private int quartetCount = 0;
-        public Player()
+        private int[] _money = new int[40];
+        private int moneyCount = 0;
+        public Player(string name)
         {
+            _name = name;
             _money = Bank.InitialHand();
         }
 
-        public string[] GetAnimals()
+        public string[] GetAnimals() { return _animals; }
+        public string[] GetQuartets() { return _quartets; }
+        public int[] GetMoney() { return _money; }
+
+        public void LogAnimals()
         {
-            return _animals;
+            for (int i = 0; i < animalCount; i++) Console.WriteLine(_animals[i]);
         }
 
-        public string[] GetQuartets()
+        public void LogQuartets()
         {
-            return _quartets;
+            for (int i = 0; i < quartetCount; i++) Console.WriteLine(_quartets[i]);
         }
 
-        public int[] GetMoney()
+        public void LogMoney()
         {
-            return _money;
+            for (int i = 0; i < moneyCount; i++) Console.WriteLine(_money[i]);
         }
 
         public void AddAnimal(string card)
         {
+            Console.WriteLine(card + " added to " + _name + "'s hand");
             _animals[animalCount] = card;
-            int count = 0;
-            // Counts amount of animals of the same type in players hand
-            for (int i = 0; i < animalCount; i++) if (_animals[i] == card) count++;
-            //  If player has a quartet the animals get removed from the game and added to his quartets
+            animalCount++;
+            int count = CountCardsOfType(card);
             if (count == 4)
             {
                 for (int i = 0; i < count; i++) RemoveAnimal(card);
                 AddQuartet(card);
             }
-
         }
 
         private void AddQuartet(string card)
         {
+            Console.WriteLine(_name + " has a quartet of " + card + "s");
             _quartets[quartetCount] = card;
+            quartetCount++;
         }
 
-        public void RemoveAnimal(string card)
+        public string HandOverAnimal(string card, int amount = 1)
         {
-            animalCount--;
+            if (amount == 1) Console.WriteLine("Removed " + card + " from " + _name + "'s hand");
+            if (amount == 2) Console.WriteLine("Removed two " + card + "s from " + _name + "'s hand");
+            try
+            {
+                int count = CountCardsOfType(card);
+                if (count < amount) throw new Exception("Player does not have enough of those cards.\nPlayer has " + count + ". Player needs " + amount);
+                return card;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace + "\nMessage: " + ex.Message);
+                return null;
+            }
+        }
+
+        private void RemoveAnimal(string card)
+        {
             for (int i = 0; i < animalCount; i++)
             {
                 if (_animals[i] == card)
@@ -61,6 +83,14 @@ namespace youre_bluffing_console
                     _animals[animalCount] = null;
                 }
             }
+            animalCount--;
+        }
+
+        private int CountCardsOfType(string card)
+        {
+            int count = 0;
+            for (int i = 0; i < animalCount; i++) if (_animals[i] == card) count++;
+            return count;
         }
     }
 }

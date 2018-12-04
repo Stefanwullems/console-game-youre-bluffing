@@ -9,20 +9,13 @@ namespace youre_bluffing_console
         {
             Animals animals = new Animals();
             Bank bank = new Bank();
-            for (int i = 0; i < animals.GetDeck().Length; i++)
-            {
-                Console.WriteLine(i.ToString() + " " + animals.GetDeck()[i] + " is valued at " + Animals.cardValues[animals.GetDeck()[i]]);
-            }
-            Console.WriteLine(bank.GetDonkeyBonus().ToString());
-            Console.WriteLine(bank.GetDonkeyBonus().ToString());
-            Console.WriteLine(bank.GetDonkeyBonus().ToString());
-            Console.WriteLine(bank.GetDonkeyBonus().ToString());
-            Player frank = new Player();
-
-            for (int i = 0; i < frank.GetMoney().Length; i++)
-            {
-                Console.WriteLine(frank.GetMoney()[i].ToString());
-            }
+            Player frank = new Player("frank");
+            frank.AddAnimal("Horse");
+            frank.AddAnimal("Horse");
+            frank.AddAnimal("Horse");
+            frank.AddAnimal("Horse");
+            frank.AddAnimal(animals.DrawCard(0));
+            frank.LogQuartets();
         }
     }
 }

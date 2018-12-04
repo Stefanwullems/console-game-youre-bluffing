@@ -68,12 +68,14 @@ namespace youre_bluffing_console
             try
             {
                 if (turn >= _deck.Length) throw new Exception("The deck is empty, move on to the trading section of the game");
+                return _deck[turn];
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace + "\nMessage: " + ex.Message);
+                return null;
             };
-            return _deck[turn];
+
         }
 
         public string[] GetDeck()
