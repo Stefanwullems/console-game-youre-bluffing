@@ -7,15 +7,12 @@ namespace youre_bluffing_console
     {
         static void Main(string[] args)
         {
-            Animals animals = new Animals();
-            Bank bank = new Bank();
-            Player frank = new Player("frank");
-            frank.AddAnimal("Horse");
-            frank.AddAnimal("Horse");
-            frank.AddAnimal("Horse");
-            frank.AddAnimal("Horse");
-            frank.AddAnimal(animals.DrawCard(0));
-            frank.LogQuartets();
+            Game game = new Game(new Bank(), new Animals());
+            Player[] players = game.GetPlayers();
+            for (int i = 0; i < players.Length; i++)
+            {
+                players[i].LogMoney();
+            }
         }
     }
 }

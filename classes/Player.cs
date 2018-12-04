@@ -5,18 +5,21 @@ namespace youre_bluffing_console
     class Player
     {
         private string _name;
+        private int _playerId;
         private string[] _animals = new string[40];
         private int animalCount = 0;
         private string[] _quartets = new string[10];
         private int quartetCount = 0;
         private int[] _money = new int[40];
         private int moneyCount = 0;
-        public Player(string name)
+        public Player(string name, int playerId)
         {
             _name = name;
+            _playerId = playerId;
             _money = Bank.InitialHand();
         }
 
+        public string GetName() { return _name; }
         public string[] GetAnimals() { return _animals; }
         public string[] GetQuartets() { return _quartets; }
         public int[] GetMoney() { return _money; }
@@ -54,6 +57,12 @@ namespace youre_bluffing_console
             Console.WriteLine(_name + " has a quartet of " + card + "s");
             _quartets[quartetCount] = card;
             quartetCount++;
+        }
+
+        public void AddMoney(int amount)
+        {
+            _money[moneyCount] = amount;
+            moneyCount++;
         }
 
         public string HandOverAnimal(string card, int amount = 1)
