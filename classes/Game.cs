@@ -30,13 +30,40 @@ namespace youre_bluffing_console
             Player currentPlayer = _players[turn % _players.Length];
             string card = DealCard(currentPlayer);
             Player highestBidder = BiddingLoop(card, currentPlayer, out int bid);
+            if (PlayerBuysAnimal(currentPlayer))
+            {
+                currentPlayer.AddAnimal(card);
+                currentPlayer.RemoveMoney(bid);
+                highestBidder.AddMoney(bid);
+            }
+            else
+            {
+                currentPlayer.AddMoney(bid);
+                highestBidder.AddAnimal(card);
+                highestBidder.RemoveMoney(bid);
+            }
+
+            Console.ReadLine();
+            turn++;
+            GameLoop();
+        }
+
+        private Boolean PlayerBuysAnimal(Player currentPlayer)
+        {
+            while (true)
+            {
+                Console.WriteLine(currentPlayer.GetName() + ": buy = b, take the money = t");
+                string decision = Console.ReadLine();
+                if (decision == "b") return true;
+                if (decision == "t") return false;
+            }
         }
 
         private string DealCard(Player currentPlayer)
         {
-            Console.WriteLine("It's " + currentPlayer.GetName() + "'s turn to draw a card");
+            Dialog("It's " + currentPlayer.GetName() + "'s turn to draw a card");
             string card = _animals.DrawCard(turn);
-            Console.WriteLine(currentPlayer.GetName() + " drew a " + card + " which is valued at " + Animals.cardValues[card]);
+            Dialog(currentPlayer.GetName() + " drew a " + card + " which is valued at " + Animals.cardValues[card]);
             return card;
         }
 
@@ -51,8 +78,6 @@ namespace youre_bluffing_console
                 Console.WriteLine("it's " + currentBidder.GetName() + "'s turn to bid");
 
                 int money = currentBidder.GetMoney();
-                Console.WriteLine(currentBidder.GetName() + " has " + money + " in his wallet");
-
                 bid = MakeBid(money, highestBid);
                 if (bid == 0)
                 {
@@ -67,7 +92,6 @@ namespace youre_bluffing_console
                 biddingTurn = (biddingTurn + 1) % bidders.Length;
             }
         }
-
 
 
         private Player[] RemoveFromBidders(Player[] players, Player currentPlayer, out int biddingTurn)
@@ -100,16 +124,16 @@ namespace youre_bluffing_console
                 string j = Console.ReadLine();
                 if (int.TryParse(j, out bid))
                 {
-                    if (bid <= highestBid) Console.WriteLine("You can only bid higher than the highest bid\nHighest Bid: " + highestBid.ToString());
+                    if (bid <= highestBid) Dialog("You can only bid higher than the highest bid\nHighest Bid: " + highestBid.ToString());
                     else if (money >= bid)
                     {
                         if (bid % 10 == 0) return bid;
-                        else Console.WriteLine("Please enter a number that's a multiple of 10");
+                        else Dialog("Please enter a number that's a multiple of 10");
                     }
-                    else Console.WriteLine("You don't have enough money for that");
+                    else Dialog("You don't have enough money for that");
                 }
                 else if (j == "p") return 0;
-                else Console.WriteLine("The computer doesn't know what to do with that input. Try something else");
+                else Dialog("The computer doesn't know what to do with that input. Try something else");
             }
         }
 
@@ -121,7 +145,7 @@ namespace youre_bluffing_console
                 int j;
                 string num = Console.ReadLine();
                 if (int.TryParse(num, out j)) { if (j >= 2 && j <= 5) return j; }
-                Console.WriteLine("Please enter a number between 2 and 5");
+                Dialog("Please enter a number between 2 and 5");
             }
         }
 
@@ -140,6 +164,12 @@ namespace youre_bluffing_console
         private void AddInitialHandToPlayers()
         {
             for (int i = 0; i < _players.Length; i++) _players[i].AddMoney(Bank.InitialHand());
+        }
+
+        private static void Dialog(string dialog)
+        {
+            Console.WriteLine(dialog);
+            Console.ReadLine();
         }
     }
 }
