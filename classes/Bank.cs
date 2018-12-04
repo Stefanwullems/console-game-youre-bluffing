@@ -7,10 +7,9 @@ namespace youre_bluffing_console
         private static int[] donkeyBonus = new int[] { 50, 100, 200, 500 };
         private int donkeyCount = 0;
 
-        public static int[] InitialHand()
+        public static int InitialHand()
         {
-            int[] hand = new int[] { 10, 10, 10, 20, 50 };
-            return hand;
+            return 80;
         }
 
         public int GetDonkeyBonus()
@@ -27,16 +26,6 @@ namespace youre_bluffing_console
                 Console.WriteLine(ex.StackTrace + " \nMessage: " + ex.Message);
                 return 0;
             }
-        }
-
-        public static int GetValueOfMoney(int[] moneyCards)
-        {
-            int accumulator = 0;
-            for (int i = 0; i < moneyCards.Length; i++)
-            {
-                accumulator += moneyCards[i];
-            }
-            return accumulator;
         }
     }
 }

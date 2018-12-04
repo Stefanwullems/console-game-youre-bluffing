@@ -10,8 +10,8 @@ namespace youre_bluffing_console
         private int animalCount = 0;
         private string[] _quartets = new string[10];
         private int quartetCount = 0;
-        private int[] _money = new int[40];
-        private int moneyCount = 0;
+        private int _money = 0;
+
         public Player(string name, int playerId)
         {
             _name = name;
@@ -22,7 +22,8 @@ namespace youre_bluffing_console
         public string GetName() { return _name; }
         public string[] GetAnimals() { return _animals; }
         public string[] GetQuartets() { return _quartets; }
-        public int[] GetMoney() { return _money; }
+        public int GetMoney() { return _money; }
+        public int GetPlayerId() { return _playerId; }
 
         public void LogAnimals()
         {
@@ -36,7 +37,7 @@ namespace youre_bluffing_console
 
         public void LogMoney()
         {
-            for (int i = 0; i < moneyCount; i++) Console.WriteLine(_money[i]);
+            Console.WriteLine(_money);
         }
 
         public void AddAnimal(string card)
@@ -57,12 +58,6 @@ namespace youre_bluffing_console
             Console.WriteLine(_name + " has a quartet of " + card + "s");
             _quartets[quartetCount] = card;
             quartetCount++;
-        }
-
-        public void AddMoney(int amount)
-        {
-            _money[moneyCount] = amount;
-            moneyCount++;
         }
 
         public string HandOverAnimal(string card, int amount = 1)
@@ -100,6 +95,16 @@ namespace youre_bluffing_console
             int count = 0;
             for (int i = 0; i < animalCount; i++) if (_animals[i] == card) count++;
             return count;
+        }
+
+        public void AddMoney(int money)
+        {
+            _money += money;
+        }
+
+        public void RemoveMoney(int money)
+        {
+            _money -= money;
         }
     }
 }
