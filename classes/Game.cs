@@ -9,7 +9,7 @@ namespace youre_bluffing_console
         private Player[] _players;
         private Bank _bank;
         private Animals _animals;
-        private int turn = 30;
+        private int turn = 39;
 
         public Game(Bank bank, Animals animals)
         {
@@ -30,45 +30,65 @@ namespace youre_bluffing_console
             Player currentPlayer = _players[turn % _players.Length];
 
             //  If turn is smaller than 40 it means that there are still animals left to draw from
-            if (turn < 40) DrawCardSection(currentPlayer);
+            if (turn < 40)
+            {
+                for (int i = 0; i < _players.Length - 1; i++)
+                {
+                    _players[i].AddAnimal("Horse");
+                    _players[i].AddAnimal("Cow");
+                }
+                //DrawCardSection(currentPlayer);
+                Console.ReadLine();
+            }
             //  Otherwise the trading sequence of the game starts
             else TradingSection(currentPlayer);
 
             //  Next turn
-            Console.ReadLine();
+
             turn++;
             GameLoop();
         }
 
         private void TradingSection(Player currentPlayer)
         {
-            Player playerToTradeWith = SelectPlayerToTradeWith(currentPlayer);
+            if (PlayerCanTrade(currentPlayer, out Dictionary<string, int> animalsInCommon, out Player playerToTradeWith))
+            {
+                Console.WriteLine("hi");
+            }
 
         }
 
-        private Player SelectPlayerToTradeWith(Player currentPlayer)
+        private Boolean PlayerCanTrade(Player currentPlayer, out Dictionary<string, int> animalsInCommon, out Player playerToTradeWith)
         {
             while (true)
             {
-                Console.WriteLine(currentPlayer.GetName() + " can pick a player to trade with");
                 LogAnimalsAndQuartets(currentPlayer);
+                Dialog(currentPlayer.GetName() + " can pick a player to trade with");
 
-                Dictionary<int, Dictionary<string, int>> playersYouCanTradeWith = GetPlayersYouCanTradeWith(currentPlayer);
+                Dictionary<int, Dictionary<string, int>> animalsInCommonByPlayerId = GetAnimalsInCommonByPlayerId(currentPlayer);
+                if (animalsInCommonByPlayerId.Count == 0)
+                {
+                    Dialog(currentPlayer.GetName() + " has no animals in common with other players\n");
+                    animalsInCommon = default(Dictionary<string, int>);
+                    playerToTradeWith = default(Player);
+                    return false;
+                }
                 for (int i = 0; i < _players.Length; i++)
                 {
-                    if (playersYouCanTradeWith.ContainsKey(_players[i].GetPlayerId()))
+                    if (animalsInCommonByPlayerId.ContainsKey(_players[i].GetPlayerId()))
                     {
-                        Dictionary<String, int> animalsInCommon = playersYouCanTradeWith[_players[i].GetPlayerId()];
+                        animalsInCommon = animalsInCommonByPlayerId[_players[i].GetPlayerId()];
                         Console.WriteLine("Trading option: \n");
                         Console.WriteLine("id: " + _players[i].GetPlayerId() + ", name: " + _players[i].GetName());
                         for (int j = 0; j < Animals.cardTypes.Length; j++)
                         {
-                            string card = Animals.cardTypes[i];
+                            string card = Animals.cardTypes[j];
                             if (animalsInCommon.ContainsKey(card))
                             {
-                                Console.WriteLine("You have " + animalsInCommon[card].ToString() + " " + card + "'s in common");
+                                Console.WriteLine("You have " + animalsInCommon[card].ToString() + " " + card + "s in common");
                             }
                         }
+                        Console.WriteLine("");
                     }
                 }
 
@@ -81,7 +101,12 @@ namespace youre_bluffing_console
                     {
                         for (int i = 0; i < _players.Length; i++)
                         {
-                            if (id == _players[i].GetPlayerId() && id != currentPlayer.GetPlayerId()) return _players[i];
+                            if (id == _players[i].GetPlayerId() && id != currentPlayer.GetPlayerId())
+                            {
+                                animalsInCommon = animalsInCommonByPlayerId[_players[i].GetPlayerId()];
+                                playerToTradeWith = _players[i];
+                                return true;
+                            }
                             else Console.WriteLine("Please enter one of the ids");
                         }
                     }
@@ -90,9 +115,9 @@ namespace youre_bluffing_console
             }
         }
 
-        private Dictionary<int, Dictionary<string, int>> GetPlayersYouCanTradeWith(Player currentPlayer)
+        private Dictionary<int, Dictionary<string, int>> GetAnimalsInCommonByPlayerId(Player currentPlayer)
         {
-            Dictionary<int, Dictionary<string, int>> playersYouCanTradeWith = new Dictionary<int, Dictionary<string, int>>();
+            Dictionary<int, Dictionary<string, int>> animalsInCommonByPlayerId = new Dictionary<int, Dictionary<string, int>>();
 
             for (int i = 0; i < _players.Length; i++)
             {
@@ -100,24 +125,23 @@ namespace youre_bluffing_console
                 {
                     if (Animals.HasAnimalsInCommon(currentPlayer.GetAnimals(), _players[i].GetAnimals(), out Dictionary<string, int> animalsInCommon))
                     {
-                        playersYouCanTradeWith.Add(_players[i].GetPlayerId(), animalsInCommon);
+                        animalsInCommonByPlayerId.Add(_players[i].GetPlayerId(), animalsInCommon);
                     }
                 }
             }
-            return playersYouCanTradeWith;
+            return animalsInCommonByPlayerId;
         }
 
         private void LogAnimalsAndQuartets(Player currentPlayer)
         {
+            Console.WriteLine("\nThis is what everybody has now\n");
             for (int i = 0; i < _players.Length; i++)
             {
-                if (_players[i].GetPlayerId() != currentPlayer.GetPlayerId())
-                {
-                    Console.WriteLine("id: " + _players[i].GetPlayerId().ToString() + ", name: " + _players[i].GetName());
-                    _players[i].LogAnimals();
-                    _players[i].LogQuartets();
-                }
+                Console.WriteLine("id: " + _players[i].GetPlayerId().ToString() + ", name: " + _players[i].GetName());
+                _players[i].LogAnimals();
+                _players[i].LogQuartets();
             }
+            Console.ReadLine();
         }
 
         private void DrawCardSection(Player currentPlayer)
