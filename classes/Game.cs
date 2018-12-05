@@ -9,7 +9,8 @@ namespace youre_bluffing_console
         private Player[] _players;
         private Bank _bank;
         private Animals _animals;
-        private int turn = 39;
+        private int _turn = 0;
+        private int _outOfGameCount = 0;
 
         public Game(Bank bank, Animals animals)
         {
@@ -25,28 +26,55 @@ namespace youre_bluffing_console
         {
             GameLoop();
         }
+
+        public void EndGame()
+        {
+            Player playerWithHighestScore = _players[0];
+            for (int i = 0; i < _players.Length; i++)
+            {
+                Console.WriteLine(_players[i].GetName() + " ended the game with a score of " + _players[i].GetScore().ToString());
+                if (playerWithHighestScore.GetPlayerId() != _players[i].GetPlayerId())
+                {
+                    if (playerWithHighestScore.GetScore() < _players[i].GetScore())
+                    {
+                        playerWithHighestScore = _players[i];
+                    }
+                }
+            }
+            Console.WriteLine("The winner is " + playerWithHighestScore.GetName() + "!");
+
+        }
         private void GameLoop()
         {
-            Player currentPlayer = _players[turn % _players.Length];
-
-            //  If turn is smaller than 40 it means that there are still animals left to draw from
-            if (turn < 40)
+            if (_outOfGameCount == _players.Length)
             {
-                for (int i = 0; i < _players.Length - 1; i++)
-                {
-                    _players[i].AddAnimal("Horse");
-                    _players[i].AddAnimal("Cow");
-                }
-                //DrawCardSection(currentPlayer);
-                Console.ReadLine();
+                EndGame();
             }
-            //  Otherwise the trading sequence of the game starts
-            else TradingSection(currentPlayer);
+            else
+            {
+                Player currentPlayer = _players[_turn % _players.Length];
+                if (!currentPlayer.IsOutOfTheGame())
+                {
+                    LogAnimalsAndQuartets(currentPlayer);
+                    //  If turn is smaller than 40 it means that there are still animals left to draw from
+                    if (_turn < 40)
+                    {
+                        DrawCardSection(currentPlayer);
+                        Console.ReadLine();
+                    }
+                    //  Otherwise the trading sequence of the game starts
+                    else
+                    {
+                        TradingSection(currentPlayer);
+                    }
 
-            //  Next turn
+                }
 
-            turn++;
-            GameLoop();
+                //  Next turn
+                _turn++;
+                GameLoop();
+            }
+
         }
 
         private void TradingSection(Player currentPlayer)
@@ -171,7 +199,6 @@ namespace youre_bluffing_console
         {
             while (true)
             {
-                LogAnimalsAndQuartets(currentPlayer);
                 Dialog(currentPlayer.GetName() + " can pick a player to trade with");
 
                 Dictionary<int, Dictionary<string, int>> animalsInCommonByPlayerId = GetAnimalsInCommonByPlayerId(currentPlayer);
@@ -181,6 +208,8 @@ namespace youre_bluffing_console
                     Dialog(currentPlayer.GetName() + " has no animals in common with other players\n");
                     animalsInCommon = default(Dictionary<string, int>);
                     playerToTradeWith = default(Player);
+                    currentPlayer.endGame();
+                    _outOfGameCount++;
                     return false;
                 }
 
@@ -289,8 +318,17 @@ namespace youre_bluffing_console
         private string DealCard(Player currentPlayer)
         {
             Dialog("It's " + currentPlayer.GetName() + "'s turn to draw a card");
-            string card = _animals.DrawCard(turn);
+            string card = _animals.DrawCard(_turn);
             Dialog(currentPlayer.GetName() + " drew a " + card + " which is valued at " + Animals.cardValues[card]);
+            if (card == "Donkey")
+            {
+                int donkeyBonus = _bank.GetDonkeyBonus();
+                Console.WriteLine("A donkey got drawn so everybody gets " + donkeyBonus.ToString());
+                for (int i = 0; i < _players.Length; i++)
+                {
+                    _players[i].AddMoney(donkeyBonus);
+                }
+            }
             return card;
         }
 
@@ -370,7 +408,7 @@ namespace youre_bluffing_console
             {
                 //  Ask a player for their bid
                 Console.WriteLine("A bid should be less or equal to your money and shouls be a multiple of 10");
-                Console.Write("Bid");
+                Console.Write("Bid - ");
                 string j = Console.ReadLine();
 
                 //  If bid is a number check if it is a valid bid
