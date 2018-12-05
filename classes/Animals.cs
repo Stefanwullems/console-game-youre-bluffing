@@ -18,7 +18,7 @@ namespace youre_bluffing_console
             {"Horse", 1000}
         };
 
-        private static string[] cardTypesSortedByValue = new string[] { "Chicken", "Goose", "Cat", "Dog", "Sheep", "Goat", "Donkey", "Pig", "Cow", "Horse" };
+        public static string[] cardTypes = new string[] { "Chicken", "Goose", "Cat", "Dog", "Sheep", "Goat", "Donkey", "Pig", "Cow", "Horse" };
         private string[] _deck = new string[40];
 
         public Animals()
@@ -29,11 +29,11 @@ namespace youre_bluffing_console
         private static string[] GenerateDeck()
         {
             string[] deck = new string[40];
-            for (int i = 0; i < cardTypesSortedByValue.Length; i++)
+            for (int i = 0; i < cardTypes.Length; i++)
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    deck[i * 4 + j] = cardTypesSortedByValue[i];
+                    deck[i * 4 + j] = cardTypes[i];
                 }
             }
             return ShuffleDeck(deck);
@@ -83,11 +83,25 @@ namespace youre_bluffing_console
             return _deck;
         }
 
-        // public static Boolean HasAnimalsInCommon(string[] p1, string[] p2, out string[] animalsInCommon)
-        // {
-        //     Dictionary<String, int> animalsInCommonDict = new Dictionary<string, int>();
-        //     for (int i = 0; i < p1.Length)
+        public static Boolean HasAnimalsInCommon(string[] p1, string[] p2, out Dictionary<String, int> animalsInCommon)
+        {
+            Dictionary<String, int> animalsP1 = new Dictionary<string, int>();
+            Dictionary<String, int> animalsP2 = new Dictionary<string, int>();
 
-        // }
+            for (int i = 0; i < cardTypes.Length; i++) animalsP1.Add(cardTypes[i], 0);
+            for (int i = 0; i < cardTypes.Length; i++) animalsP2.Add(cardTypes[i], 0);
+
+            for (int i = 0; i < p1.Length; i++) animalsP1[p1[i]]++;
+            for (int i = 0; i < p2.Length; i++) animalsP2[p2[i]]++;
+
+            animalsInCommon = new Dictionary<string, int>();
+            for (int i = 0; i < cardTypes.Length; i++)
+            {
+                string card = cardTypes[i];
+                if (animalsP1[card] > 0 && animalsP2[card] > 0) animalsInCommon.Add(card, Math.Min(animalsP1[card], animalsP2[card]));
+            }
+            if (animalsInCommon.Count > 0) return true;
+            else return false;
+        }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace youre_bluffing_console
 {
@@ -8,7 +9,7 @@ namespace youre_bluffing_console
         private Player[] _players;
         private Bank _bank;
         private Animals _animals;
-        private int turn = 37;
+        private int turn = 30;
 
         public Game(Bank bank, Animals animals)
         {
@@ -52,6 +53,25 @@ namespace youre_bluffing_console
                 Console.WriteLine(currentPlayer.GetName() + " can pick a player to trade with");
                 LogAnimalsAndQuartets(currentPlayer);
 
+                Dictionary<int, Dictionary<string, int>> playersYouCanTradeWith = GetPlayersYouCanTradeWith(currentPlayer);
+                for (int i = 0; i < _players.Length; i++)
+                {
+                    if (playersYouCanTradeWith.ContainsKey(_players[i].GetPlayerId()))
+                    {
+                        Dictionary<String, int> animalsInCommon = playersYouCanTradeWith[_players[i].GetPlayerId()];
+                        Console.WriteLine("Trading option: \n");
+                        Console.WriteLine("id: " + _players[i].GetPlayerId() + ", name: " + _players[i].GetName());
+                        for (int j = 0; j < Animals.cardTypes.Length; j++)
+                        {
+                            string card = Animals.cardTypes[i];
+                            if (animalsInCommon.ContainsKey(card))
+                            {
+                                Console.WriteLine("You have " + animalsInCommon[card].ToString() + " " + card + "'s in common");
+                            }
+                        }
+                    }
+                }
+
                 while (true)
                 {
                     Console.WriteLine("Enter a player's id to pick");
@@ -68,6 +88,23 @@ namespace youre_bluffing_console
                     else Console.WriteLine("Please enter a valid id");
                 }
             }
+        }
+
+        private Dictionary<int, Dictionary<string, int>> GetPlayersYouCanTradeWith(Player currentPlayer)
+        {
+            Dictionary<int, Dictionary<string, int>> playersYouCanTradeWith = new Dictionary<int, Dictionary<string, int>>();
+
+            for (int i = 0; i < _players.Length; i++)
+            {
+                if (_players[i].GetPlayerId() != currentPlayer.GetPlayerId())
+                {
+                    if (Animals.HasAnimalsInCommon(currentPlayer.GetAnimals(), _players[i].GetAnimals(), out Dictionary<string, int> animalsInCommon))
+                    {
+                        playersYouCanTradeWith.Add(_players[i].GetPlayerId(), animalsInCommon);
+                    }
+                }
+            }
+            return playersYouCanTradeWith;
         }
 
         private void LogAnimalsAndQuartets(Player currentPlayer)
