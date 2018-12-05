@@ -11,6 +11,7 @@ namespace youre_bluffing_console
         private string[] _quartets = new string[0];
         private int quartetCount = 0;
         private int _money = 0;
+        private Boolean _isOutOfTheGame = false;
 
         public Player(string name, int playerId)
         {
@@ -37,6 +38,21 @@ namespace youre_bluffing_console
             Console.Write("Quartets: ");
             for (int i = 0; i < quartetCount; i++) Console.Write(_quartets[i] + " ");
             Console.Write("\n\n");
+        }
+
+        public void endGame()
+        {
+            _isOutOfTheGame = true;
+        }
+
+        public Boolean IsOutOfTheGame()
+        {
+            return _isOutOfTheGame;
+        }
+
+        public int GetScore()
+        {
+            return Animals.GetValueOfQuartets(_quartets) + _money;
         }
 
         public void LogMoney() { Console.WriteLine(_money); }
