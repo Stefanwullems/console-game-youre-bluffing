@@ -53,7 +53,55 @@ namespace youre_bluffing_console
         {
             if (PlayerCanTrade(currentPlayer, out Dictionary<string, int> animalsInCommon, out Player playerToTradeWith))
             {
-                Console.WriteLine("hi");
+                Console.Clear();
+                Dialog(currentPlayer.GetName() + " picked " + playerToTradeWith.GetName() + " to trade with");
+                Console.WriteLine("These are the animals you can choose to trade\n");
+
+                LogAnimalsInCommon(animalsInCommon);
+                string animalToTrade = GetAnimalToTrade(animalsInCommon);
+                if (animalsInCommon[animalToTrade] == 1)
+                {
+                    Console.Write(currentPlayer.GetName() + " chose to trade their " + animalToTrade);
+                    Console.Write(" for " + playerToTradeWith.GetName() + "'s " + animalToTrade + "\n");
+                }
+                else
+                {
+                    Console.Write(currentPlayer.GetName() + " chose to trade their " + animalToTrade + "s");
+                    Console.Write(" for " + playerToTradeWith.GetName() + "'s " + animalToTrade + "s\n");
+                }
+
+                Console.ReadLine();
+            }
+
+        }
+
+        private string GetAnimalToTrade(Dictionary<string, int> animalsInCommon)
+        {
+            while (true)
+            {
+                Console.WriteLine("Enter the name of the animal you want to trade");
+                string decision = Console.ReadLine();
+                if (animalsInCommon.ContainsKey(decision))
+                {
+                    Console.WriteLine("");
+                    return decision;
+                }
+            }
+        }
+
+        private void LogAnimalsInCommon(Dictionary<string, int> animalsInCommon)
+        {
+            if (animalsInCommon.Count != 0)
+            {
+                for (int i = 0; i < Animals.cardTypes.Length; i++)
+                {
+                    string card = Animals.cardTypes[i];
+                    if (animalsInCommon.ContainsKey(card))
+                    {
+                        Console.WriteLine("You have " + card + " in common. Amount: " + animalsInCommon[card].ToString());
+                    }
+                }
+                Console.WriteLine("");
             }
 
         }
@@ -80,15 +128,7 @@ namespace youre_bluffing_console
                         animalsInCommon = animalsInCommonByPlayerId[_players[i].GetPlayerId()];
                         Console.WriteLine("Trading option: \n");
                         Console.WriteLine("id: " + _players[i].GetPlayerId() + ", name: " + _players[i].GetName());
-                        for (int j = 0; j < Animals.cardTypes.Length; j++)
-                        {
-                            string card = Animals.cardTypes[j];
-                            if (animalsInCommon.ContainsKey(card))
-                            {
-                                Console.WriteLine("You have " + animalsInCommon[card].ToString() + " " + card + "s in common");
-                            }
-                        }
-                        Console.WriteLine("");
+                        LogAnimalsInCommon(animalsInCommon);
                     }
                 }
 
@@ -103,6 +143,7 @@ namespace youre_bluffing_console
                         {
                             if (id == _players[i].GetPlayerId() && id != currentPlayer.GetPlayerId())
                             {
+                                Console.WriteLine("");
                                 animalsInCommon = animalsInCommonByPlayerId[_players[i].GetPlayerId()];
                                 playerToTradeWith = _players[i];
                                 return true;
@@ -134,7 +175,8 @@ namespace youre_bluffing_console
 
         private void LogAnimalsAndQuartets(Player currentPlayer)
         {
-            Console.WriteLine("\nThis is what everybody has now\n");
+            Console.Clear();
+            Console.WriteLine("This is what everybody has now\n");
             for (int i = 0; i < _players.Length; i++)
             {
                 Console.WriteLine("id: " + _players[i].GetPlayerId().ToString() + ", name: " + _players[i].GetName());
