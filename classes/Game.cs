@@ -53,6 +53,7 @@ namespace youre_bluffing_console
         {
             if (PlayerCanTrade(currentPlayer, out Dictionary<string, int> animalsInCommon, out Player playerToTradeWith))
             {
+
                 Console.Clear();
                 Dialog(currentPlayer.GetName() + " picked " + playerToTradeWith.GetName() + " to trade with");
                 Console.WriteLine("These are the animals you can choose to trade\n");
@@ -72,7 +73,7 @@ namespace youre_bluffing_console
         private void LogTradingDecision(Player currentPlayer, Player playerToTradeWith, Dictionary<string, int> animalsInCommon, string animalToTrade)
         {
             string pluralOrSingular = "";
-            if (animalsInCommon[animalToTrade] > 1) pluralOrSingular = "s";
+            if (animalsInCommon[animalToTrade] == 1) pluralOrSingular = "s";
 
             Console.Write(currentPlayer.GetName() + " chose to trade their " + animalToTrade + pluralOrSingular);
             Console.Write(" for " + playerToTradeWith.GetName() + "'s " + animalToTrade + pluralOrSingular + "\n");
@@ -174,6 +175,7 @@ namespace youre_bluffing_console
                 Dialog(currentPlayer.GetName() + " can pick a player to trade with");
 
                 Dictionary<int, Dictionary<string, int>> animalsInCommonByPlayerId = GetAnimalsInCommonByPlayerId(currentPlayer);
+                Console.WriteLine(animalsInCommonByPlayerId.Count);
                 if (animalsInCommonByPlayerId.Count == 0)
                 {
                     Dialog(currentPlayer.GetName() + " has no animals in common with other players\n");
@@ -181,6 +183,7 @@ namespace youre_bluffing_console
                     playerToTradeWith = default(Player);
                     return false;
                 }
+
                 for (int i = 0; i < _players.Length; i++)
                 {
                     if (animalsInCommonByPlayerId.ContainsKey(_players[i].GetPlayerId()))
@@ -191,7 +194,6 @@ namespace youre_bluffing_console
                         LogAnimalsInCommon(animalsInCommon);
                     }
                 }
-
                 while (true)
                 {
                     Console.WriteLine("Enter a player's id to pick");
@@ -213,6 +215,7 @@ namespace youre_bluffing_console
                     }
                     else Console.WriteLine("Please enter a valid id");
                 }
+
             }
         }
 
@@ -231,6 +234,7 @@ namespace youre_bluffing_console
                 }
             }
             return animalsInCommonByPlayerId;
+
         }
 
         private void LogAnimalsAndQuartets(Player currentPlayer)
