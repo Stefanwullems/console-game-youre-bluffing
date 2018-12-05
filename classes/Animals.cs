@@ -82,5 +82,12 @@ namespace youre_bluffing_console
         {
             return _deck;
         }
+
+        // public static Boolean HasAnimalsInCommon(string[] p1, string[] p2, out string[] animalsInCommon)
+        // {
+        //     Dictionary<String, int> animalsInCommonDict = new Dictionary<string, int>();
+        //     for (int i = 0; i < p1.Length)
+
+        // }
     }
 }

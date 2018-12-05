@@ -8,7 +8,7 @@ namespace youre_bluffing_console
         private Player[] _players;
         private Bank _bank;
         private Animals _animals;
-        private int turn = 0;
+        private int turn = 37;
 
         public Game(Bank bank, Animals animals)
         {
@@ -26,30 +26,74 @@ namespace youre_bluffing_console
         }
         private void GameLoop()
         {
-            //  If turn is not bigger than 39 it means that there are still animals left to draw from
-            if (turn > 39)
-            {
-                Player currentPlayer = _players[turn % _players.Length];
+            Player currentPlayer = _players[turn % _players.Length];
 
-                //  Gets next card in sequence out of a shuffled deck 
-                //  and logs the card and the player that drew it to the console
-                string card = DealCard(currentPlayer);
-
-                //  The players that didn't pick the card bid on the card
-                Player highestBidder = BiddingLoop(card, currentPlayer, out int bid);
-
-                //  Player that drew the card can choose to buy the card by paying the highest bid to the highest bidder.
-                //  Otherwise the highest bidder will buy the card from the player 
-                if (TakeMoneyOrBuy(currentPlayer, bid)) BuyAnimal(currentPlayer, highestBidder, card, bid);
-                else BuyAnimal(highestBidder, currentPlayer, card, bid);
-
-                //  Next turn
-                Console.ReadLine();
-                turn++;
-                GameLoop();
-            }
+            //  If turn is smaller than 40 it means that there are still animals left to draw from
+            if (turn < 40) DrawCardSection(currentPlayer);
             //  Otherwise the trading sequence of the game starts
-            else Console.WriteLine("done");
+            else TradingSection(currentPlayer);
+
+            //  Next turn
+            Console.ReadLine();
+            turn++;
+            GameLoop();
+        }
+
+        private void TradingSection(Player currentPlayer)
+        {
+            Player playerToTradeWith = SelectPlayerToTradeWith(currentPlayer);
+
+        }
+
+        private Player SelectPlayerToTradeWith(Player currentPlayer)
+        {
+            while (true)
+            {
+                Console.WriteLine(currentPlayer.GetName() + " can pick a player to trade with");
+                LogAnimalsAndQuartets(currentPlayer);
+
+                while (true)
+                {
+                    Console.WriteLine("Enter a player's id to pick");
+                    string idStr = Console.ReadLine();
+                    int id;
+                    if (int.TryParse(idStr, out id))
+                    {
+                        for (int i = 0; i < _players.Length; i++)
+                        {
+                            if (id == _players[i].GetPlayerId() && id != currentPlayer.GetPlayerId()) return _players[i];
+                            else Console.WriteLine("Please enter one of the ids");
+                        }
+                    }
+                    else Console.WriteLine("Please enter a valid id");
+                }
+            }
+        }
+
+        private void LogAnimalsAndQuartets(Player currentPlayer)
+        {
+            for (int i = 0; i < _players.Length; i++)
+            {
+                if (_players[i].GetPlayerId() != currentPlayer.GetPlayerId())
+                {
+                    Console.WriteLine("id: " + _players[i].GetPlayerId().ToString() + ", name: " + _players[i].GetName());
+                    _players[i].LogAnimals();
+                    _players[i].LogQuartets();
+                }
+            }
+        }
+
+        private void DrawCardSection(Player currentPlayer)
+        {
+            //  Gets next card in sequence out of a shuffled deck 
+            string card = DealCard(currentPlayer);
+
+            //  The players that didn't pick the card bid on the card
+            Player highestBidder = BiddingLoop(card, currentPlayer, out int bid);
+
+            //  Current player can choose to buy the card or take the money
+            if (TakeMoneyOrBuy(currentPlayer, bid)) BuyAnimal(currentPlayer, highestBidder, card, bid);
+            else BuyAnimal(highestBidder, currentPlayer, card, bid);
         }
 
         private void BuyAnimal(Player buyer, Player seller, string card, int bid)

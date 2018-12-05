@@ -6,9 +6,9 @@ namespace youre_bluffing_console
     {
         private string _name;
         private int _playerId;
-        private string[] _animals = new string[40];
+        private string[] _animals = new string[0];
         private int animalCount = 0;
-        private string[] _quartets = new string[10];
+        private string[] _quartets = new string[0];
         private int quartetCount = 0;
         private int _money = 0;
 
@@ -27,24 +27,30 @@ namespace youre_bluffing_console
 
         public void LogAnimals()
         {
-            for (int i = 0; i < animalCount; i++) Console.WriteLine(_animals[i]);
+            Console.Write("Animals: ");
+            for (int i = 0; i < animalCount; i++) Console.Write(_animals[i] + " ");
+            Console.Write("\n");
         }
 
         public void LogQuartets()
         {
-            for (int i = 0; i < quartetCount; i++) Console.WriteLine(_quartets[i]);
+            Console.Write("Quartets: ");
+            for (int i = 0; i < quartetCount; i++) Console.Write(_quartets[i] + " ");
+            Console.Write("\n\n");
         }
 
-        public void LogMoney()
-        {
-            Console.WriteLine(_money);
-        }
+        public void LogMoney() { Console.WriteLine(_money); }
 
         public void AddAnimal(string card)
         {
             Console.WriteLine(card + " added to " + _name + "'s hand");
-            _animals[animalCount] = card;
+
+            string[] animals = new string[animalCount + 1];
+            for (int i = 0; i < _animals.Length; i++) animals[i] = _animals[i];
+
+            animals[animalCount] = card;
             animalCount++;
+            _animals = animals;
             int count = CountCardsOfType(card);
             if (count == 4)
             {
@@ -56,8 +62,12 @@ namespace youre_bluffing_console
         private void AddQuartet(string card)
         {
             Console.WriteLine(_name + " has a quartet of " + card + "s");
-            _quartets[quartetCount] = card;
+
+            string[] quartets = new string[quartetCount + 1];
+            for (int i = 0; i < _quartets.Length; i++) quartets[i] = _quartets[i];
+            quartets[quartetCount] = card;
             quartetCount++;
+            _quartets = quartets;
         }
 
         public string HandOverAnimal(string card, int amount = 1)
@@ -79,15 +89,20 @@ namespace youre_bluffing_console
 
         private void RemoveAnimal(string card)
         {
+            string[] animals = new string[animalCount];
+
+            Boolean animalRemoved = false;
             for (int i = 0; i < animalCount; i++)
             {
-                if (_animals[i] == card)
+                if (_animals[i] == card && !animalRemoved) animalRemoved = true;
+                else
                 {
-                    _animals[i] = _animals[animalCount];
-                    _animals[animalCount] = null;
+                    if (animalRemoved) animals[i - 1] = _animals[i];
+                    else animals[i] = _animals[i];
                 }
             }
             animalCount--;
+            _animals = animals;
         }
 
         private int CountCardsOfType(string card)
