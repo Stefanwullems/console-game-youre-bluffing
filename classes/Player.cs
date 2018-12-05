@@ -87,7 +87,7 @@ namespace youre_bluffing_console
             }
         }
 
-        private void RemoveAnimal(string card)
+        public void RemoveAnimal(string card)
         {
             string[] animals = new string[animalCount];
 

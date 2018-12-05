@@ -58,21 +58,81 @@ namespace youre_bluffing_console
                 Console.WriteLine("These are the animals you can choose to trade\n");
 
                 LogAnimalsInCommon(animalsInCommon);
+
                 string animalToTrade = GetAnimalToTrade(animalsInCommon);
-                if (animalsInCommon[animalToTrade] == 1)
-                {
-                    Console.Write(currentPlayer.GetName() + " chose to trade their " + animalToTrade);
-                    Console.Write(" for " + playerToTradeWith.GetName() + "'s " + animalToTrade + "\n");
-                }
-                else
-                {
-                    Console.Write(currentPlayer.GetName() + " chose to trade their " + animalToTrade + "s");
-                    Console.Write(" for " + playerToTradeWith.GetName() + "'s " + animalToTrade + "s\n");
-                }
+
+                LogTradingDecision(currentPlayer, playerToTradeWith, animalsInCommon, animalToTrade);
+
+                Trade(currentPlayer, playerToTradeWith, animalsInCommon, animalToTrade);
 
                 Console.ReadLine();
             }
+        }
 
+        private void LogTradingDecision(Player currentPlayer, Player playerToTradeWith, Dictionary<string, int> animalsInCommon, string animalToTrade)
+        {
+            string pluralOrSingular = "";
+            if (animalsInCommon[animalToTrade] > 1) pluralOrSingular = "s";
+
+            Console.Write(currentPlayer.GetName() + " chose to trade their " + animalToTrade + pluralOrSingular);
+            Console.Write(" for " + playerToTradeWith.GetName() + "'s " + animalToTrade + pluralOrSingular + "\n");
+        }
+
+        private void Trade(Player currentPlayer, Player playerToTradeWith, Dictionary<string, int> animalsInCommon, string animalToTrade)
+        {
+            int currentPlayerBid = GetBid(currentPlayer);
+            int playerToTradeWithBid = GetBid(playerToTradeWith);
+
+            currentPlayer.AddMoney(playerToTradeWithBid);
+            playerToTradeWith.AddMoney(currentPlayerBid);
+
+            if (currentPlayerBid == playerToTradeWithBid) Console.WriteLine("The bid was equal");
+            else if (currentPlayerBid > playerToTradeWithBid)
+            {
+                SettleTrade(currentPlayer, playerToTradeWith, animalsInCommon[animalToTrade], animalToTrade);
+            }
+            else
+            {
+                SettleTrade(playerToTradeWith, currentPlayer, animalsInCommon[animalToTrade], animalToTrade);
+            }
+        }
+
+        private void SettleTrade(Player winner, Player loser, int amount, string animal)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                winner.AddAnimal(animal);
+                loser.RemoveAnimal(animal);
+            }
+        }
+
+        private int GetBid(Player bidder)
+        {
+            int bid = 0;
+            while (true)
+            {
+                //  Ask a player for their bid
+                Console.WriteLine("A bid should be less or equal to your money and should be a multiple of 10");
+                Console.Write(bidder.GetName() + "'s bid - ");
+                string j = Console.ReadLine();
+
+                //  If bid is a number check if it is a valid bid
+                if (int.TryParse(j, out bid))
+                {
+                    if (bidder.GetMoney() >= bid)
+                    {
+                        if (bid % 10 == 0)
+                        {
+                            Console.WriteLine("");
+                            return bid;
+                        }
+                        else Dialog("Please enter a number that's a multiple of 10");
+                    }
+                    else Dialog("You don't have enough money for that");
+                }
+                //  Player passes
+                else Dialog("The computer doesn't know what to do with that input. Try something else");
+            }
         }
 
         private string GetAnimalToTrade(Dictionary<string, int> animalsInCommon)
@@ -305,7 +365,8 @@ namespace youre_bluffing_console
             while (true)
             {
                 //  Ask a player for their bid
-                Console.WriteLine("Please enter a bid that's divisible by 10. p = pass");
+                Console.WriteLine("A bid should be less or equal to your money and shouls be a multiple of 10");
+                Console.Write("Bid");
                 string j = Console.ReadLine();
 
                 //  If bid is a number check if it is a valid bid
