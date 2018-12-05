@@ -87,9 +87,9 @@ namespace youre_bluffing_console
             }
         }
 
-        private void RemoveAnimal(string card)
+        public void RemoveAnimal(string card)
         {
-            string[] animals = new string[animalCount];
+            string[] animals = new string[animalCount - 1];
 
             Boolean animalRemoved = false;
             for (int i = 0; i < animalCount; i++)

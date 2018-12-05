@@ -9,7 +9,7 @@ namespace youre_bluffing_console
         private Player[] _players;
         private Bank _bank;
         private Animals _animals;
-        private int turn = 30;
+        private int turn = 39;
 
         public Game(Bank bank, Animals animals)
         {
@@ -30,48 +30,170 @@ namespace youre_bluffing_console
             Player currentPlayer = _players[turn % _players.Length];
 
             //  If turn is smaller than 40 it means that there are still animals left to draw from
-            if (turn < 40) DrawCardSection(currentPlayer);
+            if (turn < 40)
+            {
+                for (int i = 0; i < _players.Length - 1; i++)
+                {
+                    _players[i].AddAnimal("Horse");
+                    _players[i].AddAnimal("Cow");
+                }
+                //DrawCardSection(currentPlayer);
+                Console.ReadLine();
+            }
             //  Otherwise the trading sequence of the game starts
             else TradingSection(currentPlayer);
 
             //  Next turn
-            Console.ReadLine();
+
             turn++;
             GameLoop();
         }
 
         private void TradingSection(Player currentPlayer)
         {
-            Player playerToTradeWith = SelectPlayerToTradeWith(currentPlayer);
+            if (PlayerCanTrade(currentPlayer, out Dictionary<string, int> animalsInCommon, out Player playerToTradeWith))
+            {
 
+                Console.Clear();
+                Dialog(currentPlayer.GetName() + " picked " + playerToTradeWith.GetName() + " to trade with");
+                Console.WriteLine("These are the animals you can choose to trade\n");
+
+                LogAnimalsInCommon(animalsInCommon);
+
+                string animalToTrade = GetAnimalToTrade(animalsInCommon);
+
+                LogTradingDecision(currentPlayer, playerToTradeWith, animalsInCommon, animalToTrade);
+
+                Trade(currentPlayer, playerToTradeWith, animalsInCommon, animalToTrade);
+
+                Console.ReadLine();
+            }
         }
 
-        private Player SelectPlayerToTradeWith(Player currentPlayer)
+        private void LogTradingDecision(Player currentPlayer, Player playerToTradeWith, Dictionary<string, int> animalsInCommon, string animalToTrade)
+        {
+            string pluralOrSingular = "";
+            if (animalsInCommon[animalToTrade] == 1) pluralOrSingular = "s";
+
+            Console.Write(currentPlayer.GetName() + " chose to trade their " + animalToTrade + pluralOrSingular);
+            Console.Write(" for " + playerToTradeWith.GetName() + "'s " + animalToTrade + pluralOrSingular + "\n");
+        }
+
+        private void Trade(Player currentPlayer, Player playerToTradeWith, Dictionary<string, int> animalsInCommon, string animalToTrade)
+        {
+            int currentPlayerBid = GetBid(currentPlayer);
+            int playerToTradeWithBid = GetBid(playerToTradeWith);
+
+            currentPlayer.AddMoney(playerToTradeWithBid);
+            playerToTradeWith.AddMoney(currentPlayerBid);
+
+            if (currentPlayerBid == playerToTradeWithBid) Console.WriteLine("The bid was equal");
+            else if (currentPlayerBid > playerToTradeWithBid)
+            {
+                SettleTrade(currentPlayer, playerToTradeWith, animalsInCommon[animalToTrade], animalToTrade);
+            }
+            else
+            {
+                SettleTrade(playerToTradeWith, currentPlayer, animalsInCommon[animalToTrade], animalToTrade);
+            }
+        }
+
+        private void SettleTrade(Player winner, Player loser, int amount, string animal)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                winner.AddAnimal(animal);
+                loser.RemoveAnimal(animal);
+            }
+        }
+
+        private int GetBid(Player bidder)
+        {
+            int bid = 0;
+            while (true)
+            {
+                //  Ask a player for their bid
+                Console.WriteLine("A bid should be less or equal to your money and should be a multiple of 10");
+                Console.Write(bidder.GetName() + "'s bid - ");
+                string j = Console.ReadLine();
+
+                //  If bid is a number check if it is a valid bid
+                if (int.TryParse(j, out bid))
+                {
+                    if (bidder.GetMoney() >= bid)
+                    {
+                        if (bid % 10 == 0)
+                        {
+                            Console.WriteLine("");
+                            return bid;
+                        }
+                        else Dialog("Please enter a number that's a multiple of 10");
+                    }
+                    else Dialog("You don't have enough money for that");
+                }
+                //  Player passes
+                else Dialog("The computer doesn't know what to do with that input. Try something else");
+            }
+        }
+
+        private string GetAnimalToTrade(Dictionary<string, int> animalsInCommon)
         {
             while (true)
             {
-                Console.WriteLine(currentPlayer.GetName() + " can pick a player to trade with");
-                LogAnimalsAndQuartets(currentPlayer);
-
-                Dictionary<int, Dictionary<string, int>> playersYouCanTradeWith = GetPlayersYouCanTradeWith(currentPlayer);
-                for (int i = 0; i < _players.Length; i++)
+                Console.WriteLine("Enter the name of the animal you want to trade");
+                string decision = Console.ReadLine();
+                if (animalsInCommon.ContainsKey(decision))
                 {
-                    if (playersYouCanTradeWith.ContainsKey(_players[i].GetPlayerId()))
+                    Console.WriteLine("");
+                    return decision;
+                }
+            }
+        }
+
+        private void LogAnimalsInCommon(Dictionary<string, int> animalsInCommon)
+        {
+            if (animalsInCommon.Count != 0)
+            {
+                for (int i = 0; i < Animals.cardTypes.Length; i++)
+                {
+                    string card = Animals.cardTypes[i];
+                    if (animalsInCommon.ContainsKey(card))
                     {
-                        Dictionary<String, int> animalsInCommon = playersYouCanTradeWith[_players[i].GetPlayerId()];
-                        Console.WriteLine("Trading option: \n");
-                        Console.WriteLine("id: " + _players[i].GetPlayerId() + ", name: " + _players[i].GetName());
-                        for (int j = 0; j < Animals.cardTypes.Length; j++)
-                        {
-                            string card = Animals.cardTypes[i];
-                            if (animalsInCommon.ContainsKey(card))
-                            {
-                                Console.WriteLine("You have " + animalsInCommon[card].ToString() + " " + card + "'s in common");
-                            }
-                        }
+                        Console.WriteLine("You have " + card + " in common. Amount: " + animalsInCommon[card].ToString());
                     }
                 }
+                Console.WriteLine("");
+            }
 
+        }
+
+        private Boolean PlayerCanTrade(Player currentPlayer, out Dictionary<string, int> animalsInCommon, out Player playerToTradeWith)
+        {
+            while (true)
+            {
+                LogAnimalsAndQuartets(currentPlayer);
+                Dialog(currentPlayer.GetName() + " can pick a player to trade with");
+
+                Dictionary<int, Dictionary<string, int>> animalsInCommonByPlayerId = GetAnimalsInCommonByPlayerId(currentPlayer);
+                Console.WriteLine(animalsInCommonByPlayerId.Count);
+                if (animalsInCommonByPlayerId.Count == 0)
+                {
+                    Dialog(currentPlayer.GetName() + " has no animals in common with other players\n");
+                    animalsInCommon = default(Dictionary<string, int>);
+                    playerToTradeWith = default(Player);
+                    return false;
+                }
+
+                for (int i = 0; i < _players.Length; i++)
+                {
+                    if (animalsInCommonByPlayerId.ContainsKey(_players[i].GetPlayerId()))
+                    {
+                        animalsInCommon = animalsInCommonByPlayerId[_players[i].GetPlayerId()];
+                        Console.WriteLine("Trading option: \n");
+                        Console.WriteLine("id: " + _players[i].GetPlayerId() + ", name: " + _players[i].GetName());
+                        LogAnimalsInCommon(animalsInCommon);
+                    }
+                }
                 while (true)
                 {
                     Console.WriteLine("Enter a player's id to pick");
@@ -81,18 +203,25 @@ namespace youre_bluffing_console
                     {
                         for (int i = 0; i < _players.Length; i++)
                         {
-                            if (id == _players[i].GetPlayerId() && id != currentPlayer.GetPlayerId()) return _players[i];
+                            if (id == _players[i].GetPlayerId() && id != currentPlayer.GetPlayerId())
+                            {
+                                Console.WriteLine("");
+                                animalsInCommon = animalsInCommonByPlayerId[_players[i].GetPlayerId()];
+                                playerToTradeWith = _players[i];
+                                return true;
+                            }
                             else Console.WriteLine("Please enter one of the ids");
                         }
                     }
                     else Console.WriteLine("Please enter a valid id");
                 }
+
             }
         }
 
-        private Dictionary<int, Dictionary<string, int>> GetPlayersYouCanTradeWith(Player currentPlayer)
+        private Dictionary<int, Dictionary<string, int>> GetAnimalsInCommonByPlayerId(Player currentPlayer)
         {
-            Dictionary<int, Dictionary<string, int>> playersYouCanTradeWith = new Dictionary<int, Dictionary<string, int>>();
+            Dictionary<int, Dictionary<string, int>> animalsInCommonByPlayerId = new Dictionary<int, Dictionary<string, int>>();
 
             for (int i = 0; i < _players.Length; i++)
             {
@@ -100,24 +229,25 @@ namespace youre_bluffing_console
                 {
                     if (Animals.HasAnimalsInCommon(currentPlayer.GetAnimals(), _players[i].GetAnimals(), out Dictionary<string, int> animalsInCommon))
                     {
-                        playersYouCanTradeWith.Add(_players[i].GetPlayerId(), animalsInCommon);
+                        animalsInCommonByPlayerId.Add(_players[i].GetPlayerId(), animalsInCommon);
                     }
                 }
             }
-            return playersYouCanTradeWith;
+            return animalsInCommonByPlayerId;
+
         }
 
         private void LogAnimalsAndQuartets(Player currentPlayer)
         {
+            Console.Clear();
+            Console.WriteLine("This is what everybody has now\n");
             for (int i = 0; i < _players.Length; i++)
             {
-                if (_players[i].GetPlayerId() != currentPlayer.GetPlayerId())
-                {
-                    Console.WriteLine("id: " + _players[i].GetPlayerId().ToString() + ", name: " + _players[i].GetName());
-                    _players[i].LogAnimals();
-                    _players[i].LogQuartets();
-                }
+                Console.WriteLine("id: " + _players[i].GetPlayerId().ToString() + ", name: " + _players[i].GetName());
+                _players[i].LogAnimals();
+                _players[i].LogQuartets();
             }
+            Console.ReadLine();
         }
 
         private void DrawCardSection(Player currentPlayer)
@@ -239,7 +369,8 @@ namespace youre_bluffing_console
             while (true)
             {
                 //  Ask a player for their bid
-                Console.WriteLine("Please enter a bid that's divisible by 10. p = pass");
+                Console.WriteLine("A bid should be less or equal to your money and shouls be a multiple of 10");
+                Console.Write("Bid");
                 string j = Console.ReadLine();
 
                 //  If bid is a number check if it is a valid bid

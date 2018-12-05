@@ -85,6 +85,7 @@ namespace youre_bluffing_console
 
         public static Boolean HasAnimalsInCommon(string[] p1, string[] p2, out Dictionary<String, int> animalsInCommon)
         {
+
             Dictionary<String, int> animalsP1 = new Dictionary<string, int>();
             Dictionary<String, int> animalsP2 = new Dictionary<string, int>();
 
