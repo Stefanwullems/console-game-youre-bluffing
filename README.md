@@ -1,4 +1,4 @@
-# console-game-youre-bluffing
+# youre-bluffing
 
 This is the first app I made in C# with dotnet core.
 
